@@ -1,0 +1,12 @@
+{
+  "name": "goride-platform",
+  "version": "1.0.0",
+  "description": "GoRide - Multi-Modal Urban Mobility Platform (Bike, Auto, Bus, Train)",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "npm run start --prefix backend",
+    "build:frontend": "npm run build --prefix frontend"
+  },
+  "author": "GoRide Team",
+  "license": "MIT"
+}

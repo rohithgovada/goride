@@ -1,0 +1,121 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #0f172a;
+    color: #f8fafc;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Leaflet Map styling */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem;
+  z-index: 10;
+  background-color: #1e293b !important;
+}
+
+/* Custom Pulsing Origin Marker */
+.pulse-user-marker {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+.pulse-user-marker .dot {
+  width: 16px;
+  height: 16px;
+  background-color: #3b82f6;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+}
+.pulse-user-marker .ring {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #60a5fa;
+  border-radius: 50%;
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  animation: radar-pulse 2s infinite ease-out;
+}
+
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* Destination Pin Marker */
+.destination-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+.destination-pin svg, .destination-pin span {
+  transform: rotate(45deg);
+}
+
+/* Animated moving vehicle along route */
+.moving-vehicle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  border: 2px solid #f59e0b;
+  transition: all 0.5s ease-in-out;
+}
+
+/* Station Stop Marker */
+.transit-stop-marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Custom Scrollbar for Drawer/Panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
