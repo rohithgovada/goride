@@ -7,7 +7,8 @@ import {
   Clock, 
   Sparkles,
   CheckCircle2,
-  X
+  X,
+  Users
 } from 'lucide-react';
 import { LocationPoint } from '../types/transit';
 import { POPULAR_DESTINATIONS } from '../data/mockTransitData';
@@ -20,6 +21,8 @@ interface RouteSearchPanelProps {
   onSwapLocations: () => void;
   onUseCurrentLocation: () => void;
   isLocatingUser: boolean;
+  passengerCount: number;
+  onPassengerCountChange: (count: number) => void;
 }
 
 export const RouteSearchPanel: React.FC<RouteSearchPanelProps> = ({
@@ -30,6 +33,8 @@ export const RouteSearchPanel: React.FC<RouteSearchPanelProps> = ({
   onSwapLocations,
   onUseCurrentLocation,
   isLocatingUser,
+  passengerCount,
+  onPassengerCountChange,
 }) => {
   const [departureTiming, setDepartureTiming] = useState<'now' | '15mins' | '30mins'>('now');
   const [isSearchingDest, setIsSearchingDest] = useState(false);
@@ -263,6 +268,67 @@ export const RouteSearchPanel: React.FC<RouteSearchPanelProps> = ({
           ))}
         </div>
       )}
+
+      {/* Passenger / Member Selector */}
+      <div className="mt-3.5 pt-3 border-t border-slate-800/80">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-300">
+            <Users className="h-4 w-4 text-emerald-400" />
+            <span>Number of Commuters / Members:</span>
+          </div>
+          <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">
+            {passengerCount === 1 ? '1 Solo Person' : `${passengerCount} Members`}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-4 gap-1.5">
+          {[1, 2, 3, 4].map((count) => (
+            <button
+              key={count}
+              type="button"
+              onClick={() => onPassengerCountChange(count)}
+              className={`py-1.5 px-2 rounded-xl text-xs font-bold border transition text-center ${
+                passengerCount === count
+                  ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
+                  : 'bg-slate-800/80 text-slate-300 border-slate-700/70 hover:border-slate-600 hover:bg-slate-800'
+              }`}
+            >
+              {count === 1 && '1 (Solo)'}
+              {count === 2 && '2 (Auto 🛺)'}
+              {count === 3 && '3 (Auto 🛺)'}
+              {count >= 4 && '4+ (Group 🚌)'}
+            </button>
+          ))}
+        </div>
+
+        {/* Dynamic Advisory Notice for 2 Members */}
+        {passengerCount === 2 && (
+          <div className="mt-2.5 p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-start space-x-2 animate-in fade-in duration-200">
+            <span className="text-base shrink-0">🛺</span>
+            <div>
+              <span className="font-bold text-white">2 Members Traveling:</span> Auto Rickshaw, Metro, or Bus recommended! (Bike Taxi is limited to 1 passenger by helmet law).
+            </div>
+          </div>
+        )}
+
+        {passengerCount === 3 && (
+          <div className="mt-2.5 p-2.5 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-start space-x-2 animate-in fade-in duration-200">
+            <span className="text-base shrink-0">🛺</span>
+            <div>
+              <span className="font-bold text-white">3 Members Traveling:</span> Fits an entire Auto Rickshaw (max 3 seats) or group Metro/Bus travel.
+            </div>
+          </div>
+        )}
+
+        {passengerCount >= 4 && (
+          <div className="mt-2.5 p-2.5 bg-blue-500/10 border border-blue-500/30 rounded-xl text-xs text-blue-300 flex items-start space-x-2 animate-in fade-in duration-200">
+            <span className="text-base shrink-0">🚌</span>
+            <div>
+              <span className="font-bold text-white">4+ Members Group:</span> Metro Train and City Bus are ideal for large groups, or book multiple autos!
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Popular Destination Quick-Pills */}
       <div className="mt-3.5 pt-3 border-t border-slate-800/80">

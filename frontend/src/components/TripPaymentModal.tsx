@@ -19,6 +19,7 @@ interface TripPaymentModalProps {
   user: UserProfile;
   walletBalance: number;
   onCompletePayment: (method: string, amount: number, tip: number) => void;
+  passengerCount?: number;
 }
 
 export const TripPaymentModal: React.FC<TripPaymentModalProps> = ({
@@ -29,6 +30,7 @@ export const TripPaymentModal: React.FC<TripPaymentModalProps> = ({
   user,
   walletBalance,
   onCompletePayment,
+  passengerCount = 1,
 }) => {
   const [selectedMethod, setSelectedMethod] = useState<'upi' | 'wallet' | 'cash' | 'card'>('upi');
   const [selectedUpiApp, setSelectedUpiApp] = useState<'gpay' | 'phonepe' | 'paytm'>('gpay');
@@ -104,7 +106,7 @@ export const TripPaymentModal: React.FC<TripPaymentModalProps> = ({
                   <span className="font-mono text-white">TXN-GORIDE-{Math.floor(100000 + Math.random() * 900000)}</span>
                 </div>
                 <div className="flex justify-between text-slate-300">
-                  <span>Trip: {trip.title}</span>
+                  <span>Trip: {trip.title} ({passengerCount} Member{passengerCount > 1 ? 's' : ''})</span>
                   <span className="text-white font-medium">₹{baseFare}</span>
                 </div>
                 {tipAmount > 0 && (

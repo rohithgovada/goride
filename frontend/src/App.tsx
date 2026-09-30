@@ -96,7 +96,29 @@ export function App() {
   const [activeRideTrip, setActiveRideTrip] = useState<TripOption | null>(null);
   const [completedTripForPayment, setCompletedTripForPayment] = useState<TripOption | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [passengerCount, setPassengerCount] = useState(1);
   const [isSOSOpen, setIsSOSOpen] = useState(false);
+
+  const handlePassengerCountChange = (count: number) => {
+    setPassengerCount(count);
+    if (count >= 2) {
+      const autoOption = allTrips.find((t) => t.category === 'auto');
+      if (autoOption && selectedTrip?.category === 'bike') {
+        setSelectedTrip(autoOption);
+        setSelectedMode('auto');
+      }
+      const notif: TransitNotification = {
+        id: `notif-pax-${Date.now()}`,
+        title: `👥 ${count} Members Selected`,
+        message: 'Auto Rickshaw, Metro, and Bus are recommended for 2+ passengers. Bike Taxi is limited to 1 rider.',
+        time: 'Just now',
+        type: 'transit',
+        read: false,
+      };
+      setActiveToast(notif);
+      setNotifications((prev) => [notif, ...prev]);
+    }
+  };
 
   // Bike QR & Notifications States
   const [bikes] = useState<BikeRental[]>(MOCK_BIKE_RENTALS);
@@ -429,6 +451,8 @@ export function App() {
               onSwapLocations={handleSwapLocations}
               onUseCurrentLocation={handleUseCurrentLocation}
               isLocatingUser={isLocatingUser}
+              passengerCount={passengerCount}
+              onPassengerCountChange={handlePassengerCountChange}
             />
 
             {/* Transport Mode Switcher Tabs */}
@@ -452,6 +476,7 @@ export function App() {
               }}
               onOpenDetails={(t) => setDetailedTrip(t)}
               onBookTrip={(t) => setBookingTrip(t)}
+              passengerCount={passengerCount}
             />
           </div>
 
@@ -572,6 +597,7 @@ export function App() {
         onClose={() => setBookingTrip(null)}
         onStartRide={handleStartLiveRide}
         onSimulateDriverCall={() => setIsDriverCallOpen(true)}
+        passengerCount={passengerCount}
       />
 
       {/* Bike Handlebar QR Scan & Unlock Modal */}
@@ -641,6 +667,7 @@ export function App() {
         user={user}
         walletBalance={walletBalance}
         onCompletePayment={handleCompletePayment}
+        passengerCount={passengerCount}
       />
 
       {/* Emergency SOS Modal */}

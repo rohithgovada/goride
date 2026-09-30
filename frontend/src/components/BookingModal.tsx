@@ -21,6 +21,7 @@ interface BookingModalProps {
   onClose: () => void;
   onStartRide: (trip: TripOption) => void;
   onSimulateDriverCall: () => void;
+  passengerCount?: number;
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({
@@ -31,6 +32,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   onClose,
   onStartRide,
   onSimulateDriverCall,
+  passengerCount = 1,
 }) => {
   const [loadingState, setLoadingState] = useState<'matching' | 'confirmed'>('matching');
   const [ticketCountdown, setTicketCountdown] = useState(3600); // 1 hour in seconds
@@ -110,10 +112,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-3 flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2 text-emerald-300 font-semibold">
                   <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                  <span>{isPublicTransit ? 'Pass Active & Valid' : 'Driver Assigned & On The Way!'}</span>
+                  <span>{isPublicTransit ? `${passengerCount} Transit Pass${passengerCount > 1 ? 'es' : ''} Active` : `Driver Assigned (${passengerCount} Member${passengerCount > 1 ? 's' : ''})`}</span>
                 </div>
                 <span className="font-mono text-white bg-slate-800 px-2 py-0.5 rounded text-[11px]">
-                  Paid: ₹{trip.price}
+                  Total: ₹{trip.price}
                 </span>
               </div>
 
@@ -121,7 +123,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               {isPublicTransit ? (
                 <div className="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5 text-center relative overflow-hidden">
                   <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                    Scan At Turnstile / Show Conductor
+                    Scan At Turnstile / Show Conductor ({passengerCount} Passenger{passengerCount > 1 ? 's' : ''})
                   </div>
                   <div className="text-xs text-slate-300 font-medium mb-4">
                     {origin.name} ➔ {destination.name}

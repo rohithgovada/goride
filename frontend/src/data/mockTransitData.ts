@@ -372,6 +372,7 @@ export function getTripOptionsForLocations(origin: LocationPoint, dest: Location
       waitMins: 3,
       rating: 4.9,
       nextDepartureInMins: 3,
+      maxCapacity: 3,
       coordinates: smartCoords,
       steps: [
         {
@@ -419,6 +420,7 @@ export function getTripOptionsForLocations(origin: LocationPoint, dest: Location
       waitMins: 2,
       rating: 4.8,
       availableVehiclesCount: 8,
+      maxCapacity: 1,
       coordinates: bikeCoords,
       steps: [
         {
@@ -456,6 +458,7 @@ export function getTripOptionsForLocations(origin: LocationPoint, dest: Location
       waitMins: 4,
       rating: 4.7,
       availableVehiclesCount: 14,
+      maxCapacity: 3,
       coordinates: autoCoords,
       steps: [
         {
@@ -492,6 +495,7 @@ export function getTripOptionsForLocations(origin: LocationPoint, dest: Location
       waitMins: 5,
       rating: 4.5,
       nextDepartureInMins: 5,
+      maxCapacity: 50,
       coordinates: busCoords,
       steps: [
         {
@@ -544,6 +548,7 @@ export function getTripOptionsForLocations(origin: LocationPoint, dest: Location
       waitMins: 4,
       rating: 4.9,
       nextDepartureInMins: 4,
+      maxCapacity: 500,
       coordinates: trainCoords,
       steps: [
         {

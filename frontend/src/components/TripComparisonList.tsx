@@ -25,6 +25,7 @@ interface TripComparisonListProps {
   onSelectTrip: (trip: TripOption) => void;
   onOpenDetails: (trip: TripOption) => void;
   onBookTrip: (trip: TripOption) => void;
+  passengerCount: number;
 }
 
 export const TripComparisonList: React.FC<TripComparisonListProps> = ({
@@ -33,6 +34,7 @@ export const TripComparisonList: React.FC<TripComparisonListProps> = ({
   onSelectTrip,
   onOpenDetails,
   onBookTrip,
+  passengerCount,
 }) => {
   const getModeIcon = (mode: TransportMode) => {
     switch (mode) {
@@ -77,13 +79,34 @@ export const TripComparisonList: React.FC<TripComparisonListProps> = ({
       <div className="grid grid-cols-1 gap-3">
         {trips.map((trip) => {
           const isSelected = selectedTrip?.id === trip.id;
+          const isBike = trip.category === 'bike';
+          const isAuto = trip.category === 'auto';
+          const isPublicTransit = trip.category === 'bus' || trip.category === 'train';
+
+          const isBikeOverCapacity = isBike && passengerCount > 1;
+          const isAutoOverCapacity = isAuto && passengerCount > 3;
+          const isOverCapacity = isBikeOverCapacity || isAutoOverCapacity;
+
+          // Dynamic passenger fare
+          let displayPrice = trip.price;
+          let priceNote = trip.waitMins <= 2 ? '⚡ Instant pickup' : `⏳ Next in ${trip.waitMins}m`;
+
+          if (isPublicTransit) {
+            displayPrice = trip.price * passengerCount;
+            priceNote = `₹${trip.price} × ${passengerCount} members`;
+          } else if (isAuto && passengerCount >= 2) {
+            const perPerson = Math.round(trip.price / passengerCount);
+            priceNote = `₹${perPerson}/person (Split fare)`;
+          }
 
           return (
             <div
               key={trip.id}
               onClick={() => onSelectTrip(trip)}
               className={`group relative bg-slate-900/90 border rounded-2xl p-4 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-xl ${
-                isSelected
+                isBikeOverCapacity
+                  ? 'border-amber-900/50 bg-slate-950/70 opacity-75'
+                  : isSelected
                   ? 'border-emerald-500/80 bg-slate-900 ring-2 ring-emerald-500/20'
                   : 'border-slate-800/80 hover:border-slate-700 hover:bg-slate-900/95'
               }`}
@@ -91,6 +114,23 @@ export const TripComparisonList: React.FC<TripComparisonListProps> = ({
               {/* Top Row: Badges & Rating */}
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex flex-wrap items-center gap-1.5">
+                  {/* Highlight Auto for 2 members */}
+                  {isAuto && passengerCount === 2 && (
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full border bg-emerald-500 text-slate-950 border-emerald-400 shadow animate-pulse">
+                      👥 ⭐ Recommended for 2 Members
+                    </span>
+                  )}
+                  {isAuto && passengerCount === 3 && (
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                      👥 Fits All 3 Members
+                    </span>
+                  )}
+                  {isBikeOverCapacity && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-amber-500/20 text-amber-300 border-amber-500/40">
+                      ⚠️ 1 Person Max (Helmet Law)
+                    </span>
+                  )}
+
                   {trip.badges.map((badge, idx) => (
                     <span
                       key={idx}
@@ -120,6 +160,14 @@ export const TripComparisonList: React.FC<TripComparisonListProps> = ({
                   <span>{trip.rating}</span>
                 </div>
               </div>
+
+              {/* Overcapacity Warning Notice */}
+              {isBikeOverCapacity && (
+                <div className="mb-3 p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 flex items-center space-x-1.5">
+                  <span>⚠️</span>
+                  <span>Bike Taxi is for 1 rider only. For {passengerCount} members, please book <b>Auto Rickshaw</b> below!</span>
+                </div>
+              )}
 
               {/* Main Info Row */}
               <div className="flex items-start justify-between gap-3">
@@ -154,15 +202,15 @@ export const TripComparisonList: React.FC<TripComparisonListProps> = ({
                   <div className="flex items-baseline justify-end space-x-1.5">
                     {trip.originalPrice && (
                       <span className="text-xs text-slate-500 line-through">
-                        ₹{trip.originalPrice}
+                        ₹{isPublicTransit ? trip.originalPrice * passengerCount : trip.originalPrice}
                       </span>
                     )}
-                    <span className="text-lg sm:text-xl font-black text-white">
-                      ₹{trip.price}
+                    <span className="text-lg sm:text-xl font-black text-white font-mono">
+                      ₹{displayPrice}
                     </span>
                   </div>
                   <div className="text-[11px] text-emerald-400 font-medium">
-                    {trip.waitMins <= 2 ? '⚡ Instant pickup' : `⏳ Next in ${trip.waitMins}m`}
+                    {priceNote}
                   </div>
                 </div>
               </div>
@@ -181,17 +229,33 @@ export const TripComparisonList: React.FC<TripComparisonListProps> = ({
                   <ChevronRight className="h-3.5 w-3.5" />
                 </button>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onBookTrip(trip);
-                  }}
-                  className="px-4 py-2 rounded-xl text-xs font-bold transition shadow-md flex items-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 active:scale-95"
-                >
-                  <span>{getActionLabel(trip.category)}</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
+                {isBikeOverCapacity ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const autoTrip = trips.find(t => t.category === 'auto');
+                      if (autoTrip) onSelectTrip(autoTrip);
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 flex items-center space-x-1"
+                  >
+                    <span>Choose Auto Instead 🛺</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Update trip price with total passenger price if public transit
+                      const bookedTrip = isPublicTransit ? { ...trip, price: displayPrice } : trip;
+                      onBookTrip(bookedTrip);
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-bold transition shadow-md flex items-center space-x-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 active:scale-95"
+                  >
+                    <span>{getActionLabel(trip.category)}</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
             </div>
           );

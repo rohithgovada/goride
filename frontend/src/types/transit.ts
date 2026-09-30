@@ -41,6 +41,7 @@ export interface TripOption {
   rating: number;
   availableVehiclesCount?: number;
   nextDepartureInMins?: number;
+  maxCapacity?: number; // e.g. Bike: 1, Auto: 3, Bus/Metro: 50+
   coordinates: [number, number][]; // LatLng points along route
   steps: TransitStep[];
 }
