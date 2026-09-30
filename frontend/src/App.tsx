@@ -12,6 +12,7 @@ import { NotificationsModal } from './components/NotificationsModal';
 import { BikeQRModal } from './components/BikeQRModal';
 import { LoginModal } from './components/LoginModal';
 import { DriverCallModal } from './components/DriverCallModal';
+import { TripPaymentModal } from './components/TripPaymentModal';
 import { ToastNotification } from './components/ToastNotification';
 import { 
   DEFAULT_ORIGIN, 
@@ -93,6 +94,8 @@ export function App() {
   const [detailedTrip, setDetailedTrip] = useState<TripOption | null>(null);
   const [bookingTrip, setBookingTrip] = useState<TripOption | null>(null);
   const [activeRideTrip, setActiveRideTrip] = useState<TripOption | null>(null);
+  const [completedTripForPayment, setCompletedTripForPayment] = useState<TripOption | null>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isSOSOpen, setIsSOSOpen] = useState(false);
 
   // Bike QR & Notifications States
@@ -239,21 +242,33 @@ export function App() {
     setSimulationProgress(0);
     setIsSimulating(true);
 
-    // Deduct fare from wallet
-    const newBal = Math.max(0, walletBalance - trip.price);
-    setWalletBalance(newBal);
-
     // Add confirmation notification & toast
     const newNotif: TransitNotification = {
       id: `notif-${Date.now()}`,
-      title: `💳 Paid ₹${trip.price} via GoRide Wallet`,
-      message: `Confirmed booking for ${trip.title}. Captain will call ${user.phone} when arriving. Safe travels!`,
+      title: `🚖 Booking Confirmed: ${trip.title}`,
+      message: `Captain Rajesh assigned. You can pay ₹${trip.price} via UPI / Cash / Wallet after dropping at destination.`,
       time: 'Just now',
-      type: 'wallet',
+      type: 'bike',
       read: false,
     };
     setActiveToast(newNotif);
     setNotifications((prev) => [newNotif, ...prev]);
+  };
+
+  const handleCompletePayment = (method: string, amount: number, _tip: number) => {
+    if (method === 'wallet') {
+      setWalletBalance((prev) => Math.max(0, prev - amount));
+    }
+    const payToast: TransitNotification = {
+      id: `notif-pay-${Date.now()}`,
+      title: `✅ Paid ₹${amount} via ${method.toUpperCase()}`,
+      message: `Payment successful! Trip completed. Invoice sent to ${user.email || 'your email'}.`,
+      time: 'Just now',
+      type: 'wallet',
+      read: false,
+    };
+    setActiveToast(payToast);
+    setNotifications((prev) => [payToast, ...prev]);
   };
 
   // Bike QR & Hub Actions
@@ -607,6 +622,8 @@ export function App() {
           onTogglePlayPause={handleToggleSimulation}
           onResetSimulation={() => setSimulationProgress(0)}
           onEndTrip={() => {
+            setCompletedTripForPayment(activeRideTrip);
+            setIsPaymentModalOpen(true);
             setActiveRideTrip(null);
             setIsSimulating(false);
             setSimulationProgress(0);
@@ -614,6 +631,17 @@ export function App() {
           onOpenSOS={() => setIsSOSOpen(true)}
         />
       )}
+
+      {/* Destination Drop Fare Payment & Receipt Modal */}
+      <TripPaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        trip={completedTripForPayment || selectedTrip}
+        driverName="Rajesh Kumar"
+        user={user}
+        walletBalance={walletBalance}
+        onCompletePayment={handleCompletePayment}
+      />
 
       {/* Emergency SOS Modal */}
       <SOSModal

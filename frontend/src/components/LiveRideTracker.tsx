@@ -121,6 +121,13 @@ export const LiveRideTracker: React.FC<LiveRideTrackerProps> = ({
             >
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
+            <button
+              onClick={onEndTrip}
+              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold transition active:scale-95"
+              title="Drop now and pay fare"
+            >
+              Drop & Pay
+            </button>
           </div>
         ) : (
           <button
@@ -128,7 +135,7 @@ export const LiveRideTracker: React.FC<LiveRideTrackerProps> = ({
             className="w-full py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition flex items-center justify-center space-x-1.5 shadow-lg shadow-emerald-500/20 active:scale-95"
           >
             <CheckCircle className="h-4 w-4" />
-            <span>Finish Ride & View Summary</span>
+            <span>Destination Dropped • Pay Fare (₹{trip.price})</span>
           </button>
         )}
 
